@@ -1,0 +1,8 @@
+---
+title: "Original Data Viz"
+---
+
+Here's the original data visualization from Desert News.
+
+![](covid-ya.jpg)
+
