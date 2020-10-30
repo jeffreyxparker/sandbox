@@ -1,0 +1,80 @@
+---
+title: "New Data Viz"
+---
+
+Here is the new data visualization I created. The story Deseret News wants to represent the large number of young adults who moved back in with parents once the pandemic began in 2020. In the original, they do this by comparing 2019 and 2020 percentages. Here, I've focused on the difference between those numbers - comparing month by month.
+
+```{r setup, echo = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r, echo = FALSE, message = FALSE}
+#library
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(ggthemes)
+```
+
+```{r, echo=FALSE, message = FALSE}
+#load data
+
+ysa <- read_csv("youngadults_covid.csv")
+
+ysa <- ysa[-8,]
+ysa <- ysa[,-7]
+
+ysa[,6] <- as.double(unlist(ysa[,6]))
+
+```
+
+
+```{r, echo=FALSE, message = FALSE}
+# this funciton shows millions for ggplot axis
+addUnits <- function(n) {
+  labels <- ifelse(n < 1000, n,  # less than thousands
+                   ifelse(n < 1e6, paste0(round(n/1e3), 'k'),  # in thousands
+                          ifelse(n < 1e9, paste0(round(n/1e6), 'M'),  # in millions
+                                 ifelse(n < 1e12, paste0(round(n/1e9), 'B'), # in billions
+                                        ifelse(n < 1e15, paste0(round(n/1e12), 'T'), # in trillions
+                                               'too big!'
+                                        )))))
+  return(labels)
+}
+```
+
+
+```{r, echo=FALSE, message = FALSE}
+# ggplot -- use this one
+ggplot(data = ysa, mapping = aes(x = Month, y = Difference, fill = "dodgerblue4")) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  scale_fill_manual(values = c("dodgerblue4")) +
+  scale_x_discrete(limits=c("January", "February", "March", "April", "May", "June", "July")) +
+  labs(
+    title = "Covid & Increase of Young Adults Living with Parents in 2020",
+    subtitle = "Compared to 2019, a large increase of Young Adults in the U.S. moved in with parents.",
+    x = "",
+    y = "Change from 2019 to 2020 (Count)") +
+  scale_y_continuous() +
+  theme_classic() +
+  theme(
+    axis.ticks = element_blank(),
+    axis.line = element_blank(),
+    axis.title = element_text(size = 11, color = "grey10"),
+    axis.text.x = element_text(color = "grey20", size = 10),
+    axis.text.y = element_text(color = "grey60"),
+    legend.position = "none",
+    legend.text = element_text(size = 8),
+    plot.subtitle = element_text(size = 12), 
+    plot.title = element_text(face = "bold", size = 14),
+  ) +
+  scale_y_continuous(labels = addUnits) +
+  geom_text(
+    mapping = aes(x = Month, y = Difference),
+    data = ysa,
+    label= c("", "0.5M", "", "2.0M", "", "2.6M", ""), 
+    nudge_x = 0, nudge_y = 100000, 
+    check_overlap = F
+  )
+```
+
